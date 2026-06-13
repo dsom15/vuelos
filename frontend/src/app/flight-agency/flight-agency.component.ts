@@ -48,11 +48,10 @@ export class FlightAgencyComponent implements OnInit {
 
     this.api.saveFlight(bookedFlight, token).subscribe({
       next: (res) => {
-        const saved = res.vuelos?.[0] ?? res.reservation ?? res;
         this.successMessage = '¡Reserva de vuelo guardada con éxito!';
         this.errorMessage = '';
-        this.lastReservationId = saved?.id ?? res.formId ?? res.id ?? null;
-        this.reservation = this.mapReservation(saved) ?? {
+        this.lastReservationId = res.formId ?? res.reservation?.id ?? null;
+        this.reservation = this.mapReservation(res.reservation) ?? {
           id: this.lastReservationId,
           ...bookedFlight,
           created_at: new Date().toISOString()
@@ -68,20 +67,17 @@ export class FlightAgencyComponent implements OnInit {
   }
 
   viewReservation() {
-    this.api.getReservations().subscribe({
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    this.api.getReservations(token).subscribe({
       next: (res) => {
         const list = Array.isArray(res)
           ? res
           : (res.vuelos ?? res.reservations ?? res.data ?? []);
 
         if (list.length === 0) {
-          if (this.reservation) {
-            this.reservations = [this.reservation];
-            this.showReservation = true;
-            this.errorMessage = '';
-            return;
-          }
-          this.errorMessage = 'No hay reservas disponibles en el mock de Postman';
+          this.errorMessage = 'No tienes reservas guardadas';
           this.showReservation = false;
           return;
         }

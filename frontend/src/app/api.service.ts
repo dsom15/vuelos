@@ -25,24 +25,12 @@ export class ApiService {
 
   saveFlight(data: any, token: string): Observable<any> {
     const headers = { 'Authorization': `Bearer ${token}` };
-    const mappedData = {
-      origen: data.origin,
-      destino: data.destination,
-      fechaIda: data.departure_date,
-      fechaRegreso: data.return_date,
-      numPasajeros: data.passengers
-    };
-    return this.http.post(
-      'https://75c2bb60-0974-41f3-91fd-881b13f2a237.mock.pstmn.io/vuelos',
-      mappedData,
-      { headers }
-    );
+    return this.http.post(`${this.apiUrl}/flights`, data, { headers });
   }
 
-  getReservations(): Observable<any> {
-    return this.http.get(
-      'https://bfc26515-244a-4fdd-a458-f7fc70ff91bd.mock.pstmn.io/Agencia/Reserva'
-    );
+  getReservations(token: string): Observable<any> {
+    const headers = { 'Authorization': `Bearer ${token}` };
+    return this.http.get(`${this.apiUrl}/flights`, { headers });
   }
 
   getFlight(id: number, token: string): Observable<any> {
