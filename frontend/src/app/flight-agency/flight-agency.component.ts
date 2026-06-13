@@ -22,6 +22,10 @@ export class FlightAgencyComponent implements OnInit {
 
   successMessage = '';
   errorMessage = '';
+  lastReservationId: number | null = null;
+  reservation: any = null;
+  reservations: any[] = [];
+  showReservation = false;
 
   constructor(private api: ApiService, private router: Router) {}
 
@@ -40,15 +44,77 @@ export class FlightAgencyComponent implements OnInit {
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    this.api.saveFlight(this.flight, token).subscribe({
+    const bookedFlight = { ...this.flight };
+
+    this.api.saveFlight(bookedFlight, token).subscribe({
       next: (res) => {
+        const saved = res.vuelos?.[0] ?? res.reservation ?? res;
         this.successMessage = '¡Reserva de vuelo guardada con éxito!';
         this.errorMessage = '';
+        this.lastReservationId = saved?.id ?? res.formId ?? res.id ?? null;
+        this.reservation = this.mapReservation(saved) ?? {
+          id: this.lastReservationId,
+          ...bookedFlight,
+          created_at: new Date().toISOString()
+        };
+        this.showReservation = false;
         this.flight = { destination: '', origin: '', departure_date: '', return_date: '', passengers: 1 };
       },
       error: (err) => {
-        this.errorMessage = err.error?.error || 'Error al guardar el vuelo';
+        const status = err.status ? ` (${err.status})` : '';
+        this.errorMessage = (err.error?.message || err.error?.error || err.message || 'Error al guardar el vuelo') + status;
       }
     });
+  }
+
+  viewReservation() {
+    this.api.getReservations().subscribe({
+      next: (res) => {
+        const list = Array.isArray(res)
+          ? res
+          : (res.vuelos ?? res.reservations ?? res.data ?? []);
+
+        if (list.length === 0) {
+          if (this.reservation) {
+            this.reservations = [this.reservation];
+            this.showReservation = true;
+            this.errorMessage = '';
+            return;
+          }
+          this.errorMessage = 'No hay reservas disponibles en el mock de Postman';
+          this.showReservation = false;
+          return;
+        }
+
+        this.reservations = list.map((item: any, index: number) =>
+          this.mapReservation({ ...item, id: item.id ?? item.formId ?? index + 1 })
+        );
+        this.reservation = this.reservations[0];
+        this.showReservation = true;
+        this.errorMessage = '';
+      },
+      error: (err) => {
+        const status = err.status ? ` (${err.status})` : '';
+        this.errorMessage = (err.error?.error || err.message || 'Error al cargar la reserva') + status;
+        this.showReservation = false;
+      }
+    });
+  }
+
+  hideReservation() {
+    this.showReservation = false;
+  }
+
+  private mapReservation(raw: any) {
+    if (!raw) return null;
+    return {
+      id: raw.id ?? raw.formId,
+      origin: raw.origin ?? raw.origen,
+      destination: raw.destination ?? raw.destino,
+      departure_date: raw.departure_date ?? raw.fechaIda ?? raw.fechaida,
+      return_date: raw.return_date ?? raw.fechaRegreso ?? raw.fecharegreso,
+      passengers: raw.passengers ?? raw.numPasajeros ?? raw.numpasajeros,
+      created_at: raw.created_at
+    };
   }
 }

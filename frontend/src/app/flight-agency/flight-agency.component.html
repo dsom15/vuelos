@@ -7,6 +7,48 @@
 
   <div *ngIf="successMessage" class="success-message">
     {{ successMessage }}
+    <button
+      type="button"
+      class="btn-secondary"
+      (click)="viewReservation()"
+    >
+      Ver reservas
+    </button>
+  </div>
+
+  <div *ngIf="showReservation && reservations.length">
+    <div class="reservation-header">
+      <h3>Reservas disponibles ({{ reservations.length }})</h3>
+      <button type="button" class="btn-close" (click)="hideReservation()">×</button>
+    </div>
+
+    <div *ngFor="let item of reservations; let i = index" class="reservation-card">
+      <h4>Vuelo #{{ i + 1 }}</h4>
+      <div class="reservation-detail">
+        <span>Origen</span>
+        <strong>{{ item.origin }}</strong>
+      </div>
+      <div class="reservation-detail">
+        <span>Destino</span>
+        <strong>{{ item.destination }}</strong>
+      </div>
+      <div class="reservation-detail">
+        <span>Fecha de ida</span>
+        <strong>{{ item.departure_date | date:'dd/MM/yyyy' }}</strong>
+      </div>
+      <div class="reservation-detail">
+        <span>Fecha de vuelta</span>
+        <strong>{{ item.return_date | date:'dd/MM/yyyy' }}</strong>
+      </div>
+      <div class="reservation-detail">
+        <span>Pasajeros</span>
+        <strong>{{ item.passengers }}</strong>
+      </div>
+      <div class="reservation-detail" *ngIf="item.created_at">
+        <span>Fecha de reserva</span>
+        <strong>{{ item.created_at | date:'dd/MM/yyyy HH:mm' }}</strong>
+      </div>
+    </div>
   </div>
 
   <div *ngIf="errorMessage" class="error-message" style="text-align: center; margin-bottom: 1rem;">

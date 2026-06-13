@@ -186,3 +186,65 @@ button:active {
   border: 1px solid rgba(16, 185, 129, 0.2);
   border-radius: 0.5rem;
 }
+
+.success-message .btn-secondary {
+  margin-top: 0.75rem;
+  width: auto;
+  padding: 0.5rem 1.25rem;
+  background: var(--success);
+  font-size: 0.9rem;
+}
+
+.reservation-card {
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 1rem;
+  animation: slideUp 0.4s ease forwards;
+}
+
+.reservation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.reservation-header h3 {
+  font-size: 1.1rem;
+  margin: 0;
+  background: linear-gradient(to right, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.btn-close {
+  width: auto;
+  margin: 0;
+  padding: 0.25rem 0.6rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.reservation-detail {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.95rem;
+}
+
+.reservation-detail:last-child {
+  border-bottom: none;
+}
+
+.reservation-detail span {
+  color: var(--text-muted);
+}
+
+.reservation-detail strong {
+  color: var(--text);
+}
