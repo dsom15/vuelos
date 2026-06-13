@@ -8,12 +8,15 @@ const db = require('../db');
 
 const JWT_SECRET = 'supersecret_for_demo';
 
+// POST /api/auth/register
+// Crea un usuario nuevo en MySQL.
+// La contraseña NO se guarda en texto plano: se hashea con bcrypt antes de insertarla.
 router.post('/register', async (req, res) => {
     const { name, address, phone, dob, username, password } = req.body;
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
-        
-        // Generate 2FA Secret
+
+        // Genera el secreto para autenticación de dos factores (2FA)
         const secret = speakeasy.generateSecret({ name: `Sabados (${username})` });
 
         const [result] = await db.execute(
@@ -22,8 +25,8 @@ router.post('/register', async (req, res) => {
         );
 
         qrcode.toDataURL(secret.otpauth_url, (err, data_url) => {
-            res.status(201).json({ 
-                message: 'User registered successfully', 
+            res.status(201).json({
+                message: 'User registered successfully',
                 userId: result.insertId,
                 qrCode: data_url,
                 secret: secret.base32
@@ -37,6 +40,12 @@ router.post('/register', async (req, res) => {
     }
 });
 
+// POST /api/auth/login
+// Aquí se valida usuario y contraseña:
+// 1. Busca el username en la tabla `users` de MySQL
+// 2. Compara la contraseña ingresada con el hash guardado (bcrypt.compare)
+// 3. Si no existe o no coincide → 401 "Invalid credentials"
+// 4. Si coincide → devuelve userId para el paso 2FA (aún no entrega el JWT)
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
     try {
@@ -53,6 +62,9 @@ router.post('/login', async (req, res) => {
     }
 });
 
+// POST /api/auth/verify-2fa
+// Segundo paso del login: valida el código de 6 dígitos de la app 2FA.
+// Si es correcto, genera y devuelve el token JWT para usar en la app.
 router.post('/verify-2fa', async (req, res) => {
     const { userId, token } = req.body;
     try {
