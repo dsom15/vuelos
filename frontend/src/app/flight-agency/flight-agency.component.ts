@@ -48,14 +48,10 @@ export class FlightAgencyComponent implements OnInit {
 
     this.api.saveFlight(bookedFlight, token).subscribe({
       next: (res) => {
-        this.successMessage = '¡Reserva de vuelo guardada con éxito!';
+        this.successMessage = res.message || '¡Reserva de vuelo guardada con éxito!';
         this.errorMessage = '';
-        this.lastReservationId = res.formId ?? res.reservation?.id ?? null;
-        this.reservation = this.mapReservation(res.reservation) ?? {
-          id: this.lastReservationId,
-          ...bookedFlight,
-          created_at: new Date().toISOString()
-        };
+        this.lastReservationId = res.vuelo?.id ?? null;
+        this.reservation = this.mapReservation(res.vuelo);
         this.showReservation = false;
         this.flight = { destination: '', origin: '', departure_date: '', return_date: '', passengers: 1 };
       },

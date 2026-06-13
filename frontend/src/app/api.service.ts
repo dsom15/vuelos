@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
-
   private apiUrl = 'http://localhost:3000/api';
 
   constructor(private http: HttpClient) { }
@@ -24,17 +23,41 @@ export class ApiService {
   }
 
   saveFlight(data: any, token: string): Observable<any> {
-    const headers = { 'Authorization': `Bearer ${token}` };
-    return this.http.post(`${this.apiUrl}/flights`, data, { headers });
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+
+    const mappedData = {
+      origen: data.origin,
+      destino: data.destination,
+      fechaIda: data.departure_date,
+      fechaRegreso: data.return_date,
+      numPasajeros: data.passengers
+    };
+
+    return this.http.post(
+      `${this.apiUrl}/flights/reservations`,
+      mappedData,
+      { headers }
+    );
   }
 
   getReservations(token: string): Observable<any> {
-    const headers = { 'Authorization': `Bearer ${token}` };
-    return this.http.get(`${this.apiUrl}/flights`, { headers });
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+
+    return this.http.get(
+      `${this.apiUrl}/flights/reservations`,
+      { headers }
+    );
   }
 
   getFlight(id: number, token: string): Observable<any> {
-    const headers = { 'Authorization': `Bearer ${token}` };
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+
     return this.http.get(`${this.apiUrl}/flights/${id}`, { headers });
   }
 }
